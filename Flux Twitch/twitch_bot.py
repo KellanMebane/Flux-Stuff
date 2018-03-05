@@ -121,18 +121,17 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         # The command was not recognized
         else:
             # Go Through Process of Changing Color or Fail the command
-            newcmd = cmd.replace("C", "")
             bulb_info = autoScan()
             if bulb_info:
                 bulb = WifiLedBulb(bulb_info['ipaddr'])
                 bulb.turnOn()
                 try:
-                    rgb = webcolors.name_to_rgb(newcmd)
+                    rgb = webcolors.name_to_rgb(cmd)
                     bulb.setRgb(rgb[0], rgb[1], rgb[2], persist=False)
-                    message = "Bulb color changed to " + newcmd
+                    message = "Bulb color changed to " + cmd
                     c.privmsg(self.channel, message)
                 except ValueError: # If value doesn't exist, it's neither a color or a command
-                    c.privmsg(self.channel, newcmd + " is not a color!")
+                    c.privmsg(self.channel, cmd + " is not a color!")
                     c.privmsg(self.channel, "Did not understand command: " + cmd)
 
 
