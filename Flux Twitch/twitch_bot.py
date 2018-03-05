@@ -7,7 +7,11 @@ or in the "license" file accompanying this file. This file is distributed on an 
 
 # python '.\Flux Twitch\twitch_bot.py' jeglikerwhitegirls 7mcwm6b6a5x4iafdt8eqceoxi8voqg bx9i9wkpgiydkkezsisiug7usbmoc3 jeglikerwhitegirls
 
-# REMINDERS
+# TO DO
+# ADD PRESETS
+# ADD CUSTOMS
+# ADD BRIGHTNESS
+# ADD FADING STROBING ETC. (PROBABLY SAME FLOW AS CUSTOMS)
 # TRY TO MAKE IT A VOTE (DEMOCRACY)
 # IF THAT WORKS OUT, LOOK TO MAKE FASTER (AKA KEEP BULB CONNECTION)
 
@@ -91,24 +95,24 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
         # Provide basic information to viewers for specific commands
         # Hex input as command
-        elif cmd[0] == '#':
-            if len(cmd) == 7:
-                newcmd = cmd.replace("#", "")
-                try: 
-                    int(newcmd, 16)    
-                    bulb_info = autoScan()
-                    message = "Bulb color changed to " + cmd
-                    c.privmsg(self.channel, message)
-                    if bulb_info:
-                        bulb = WifiLedBulb(bulb_info['ipaddr'])
-                        bulb.turnOn()
-                        rgb = struct.unpack('BBB', newcmd.decode('hex')) #convert hex to tuple
-                        bulb.setRgb(rgb[0], rgb[1], rgb[2], persist=False)
-                except ValueError:
-                    c.privmsg(self.channel, cmd + " is not a valid color code!")
-            else:
-                message = "Invalid command: color format example: #12D4F6"
-                c.privmsg(self.channel, message)
+        # elif cmd[0] == '#':
+        #     if len(cmd) == 7:
+        #         newcmd = cmd.replace("#", "")
+        #         try: 
+        #             int(newcmd, 16)    
+        #             bulb_info = autoScan()
+        #             message = "Bulb color changed to " + cmd
+        #             c.privmsg(self.channel, message)
+        #             if bulb_info:
+        #                 bulb = WifiLedBulb(bulb_info['ipaddr'])
+        #                 bulb.turnOn()
+        #                 rgb = struct.unpack('BBB', newcmd.decode('hex')) #convert hex to tuple
+        #                 bulb.setRgb(rgb[0], rgb[1], rgb[2], persist=False)
+        #         except ValueError:
+        #             c.privmsg(self.channel, cmd + " is not a valid color code!")
+        #     else:
+        #         message = "Invalid command: color format example: #12D4F6"
+        #         c.privmsg(self.channel, message)
 
         # Test Color Change
         elif cmd == "off":
@@ -126,7 +130,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                 bulb = WifiLedBulb(bulb_info['ipaddr'])
                 bulb.turnOn()
                 try:
-                    rgb = webcolors.name_to_rgb(cmd)
+                    rgb = generateRGB(cmd)
                     bulb.setRgb(rgb[0], rgb[1], rgb[2], persist=False)
                     message = "Bulb color changed to " + cmd
                     c.privmsg(self.channel, message)
@@ -139,6 +143,17 @@ def autoScan():
 	scanner.scan(timeout=4)
 	bulb_info = scanner.getBulbInfoByID('ACCF235FFFFF')
 	return bulb_info
+
+def generateRGB(cmd): # given string, convert it to based on type of input: hex, name, rgb triplet.
+    if (cmd[0] == '#'):
+        rgb = webcolors.hex_to_rgb(cmd)
+    elif (cmd[0] == '(') and (cmd[len(cmd) - 1] == ')'):
+        newcmd_a = cmd.replace("(", "")
+        newcmd_b = newcmd_a.replace(")", "") 
+        rgb = tuple(newcmd_b.split(","))
+    else:    
+        rgb = webcolors.name_to_rgb(cmd)
+    return rgb
 
 def main():
     if len(sys.argv) != 5:
