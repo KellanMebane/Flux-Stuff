@@ -26,7 +26,7 @@ except:
 
 this_folder = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(this_folder)
-from flux_led import WifiLedBulb, BulbScanner, LedTimer, autoScan
+from flux_led import WifiLedBulb, BulbScanner, LedTimer
 
 
 class TwitchBot(irc.bot.SingleServerIRCBot):
@@ -134,6 +134,11 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                     c.privmsg(self.channel, cmd + " is not a color!")
                     c.privmsg(self.channel, "Did not understand command: " + cmd)
 
+def autoScan():
+	scanner = BulbScanner()
+	scanner.scan(timeout=4)
+	bulb_info = scanner.getBulbInfoByID('ACCF235FFFFF')
+	return bulb_info
 
 def main():
     if len(sys.argv) != 5:
