@@ -26,7 +26,7 @@ except:
 
 this_folder = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(this_folder)
-from flux_led import WifiLedBulb, BulbScanner, LedTimer
+from flux_led import WifiLedBulb, BulbScanner, LedTimer, autoScan
 
 
 class TwitchBot(irc.bot.SingleServerIRCBot):
@@ -90,21 +90,19 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                       ' channel title is currently ' + r['status'])
 
         # Provide basic information to viewers for specific commands
-
+        # Hex input as command
         elif cmd[0] == '#':
             if len(cmd) == 7:
                 newcmd = cmd.replace("#", "")
                 try: 
                     int(newcmd, 16)    
-                    scanner = BulbScanner()
-                    scanner.scan(timeout=4)
-                    bulb_info = scanner.getBulbInfoByID('ACCF235FFFFF')
+                    bulb_info = autoScan()
                     message = "Bulb color changed to " + cmd
                     c.privmsg(self.channel, message)
                     if bulb_info:
                         bulb = WifiLedBulb(bulb_info['ipaddr'])
                         bulb.turnOn()
-                        rgb = struct.unpack('BBB', newcmd.decode('hex'))
+                        rgb = struct.unpack('BBB', newcmd.decode('hex')) #convert hex to tuple
                         bulb.setRgb(rgb[0], rgb[1], rgb[2], persist=False)
                 except ValueError:
                     c.privmsg(self.channel, cmd + " is not a valid color code!")
@@ -115,21 +113,16 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         # Test Color Change
         elif cmd == "off":
             message = "Bulb has been turned off"
-            c.privmsg(self.channel, message)
-            scanner = BulbScanner()
-            scanner.scan(timeout=4)
-            bulb_info = scanner.getBulbInfoByID('ACCF235FFFFF')
+            bulb_info = autoScan()
             if bulb_info:
                 bulb = WifiLedBulb(bulb_info['ipaddr'])
                 bulb.turnOff()
 
         # The command was not recognized
         else:
-            # Go Through Process of Changing Color
-            scanner = BulbScanner()
-            scanner.scan(timeout=4)
+            # Go Through Process of Changing Color or Fail the command
             newcmd = cmd.replace("C", "")
-            bulb_info = scanner.getBulbInfoByID('ACCF235FFFFF')
+            bulb_info = autoScan()
             if bulb_info:
                 bulb = WifiLedBulb(bulb_info['ipaddr'])
                 bulb.turnOn()

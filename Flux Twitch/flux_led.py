@@ -999,6 +999,12 @@ def processSetTimerArgs(parser, args):
 	
 	return timer
 
+def autoScan():
+	scanner = BulbScanner()
+	scanner.scan(timeout=4)
+	bulb_info = scanner.getBulbInfoByID('ACCF235FFFFF')
+	return bulb_info
+
 def processCustomArgs(parser, args):
 	if args[0] not in ["gradual", "jump", "strobe"]:
 		parser.error("bad pattern type: {}".format(args[0]))
