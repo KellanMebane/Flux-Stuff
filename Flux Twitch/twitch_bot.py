@@ -7,7 +7,7 @@ or in the "license" file accompanying this file. This file is distributed on an 
 
 # python '.\Flux Twitch\twitch_bot.py' jeglikerwhitegirls 7mcwm6b6a5x4iafdt8eqceoxi8voqg bx9i9wkpgiydkkezsisiug7usbmoc3 jeglikerwhitegirls
 
-# TO DO (TEST SPLIT)
+# TO DO (TEST SPLIT) 2
 # ADD PRESETS
 # ADD CUSTOMS
 # ADD BRIGHTNESS
