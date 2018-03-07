@@ -1,12 +1,3 @@
-'''
-Copyright 2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at
-    http://aws.amazon.com/apache2.0/
-or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-'''
-
-# python '.\Flux Twitch\twitch_bot.py' jeglikerwhitegirls 7mcwm6b6a5x4iafdt8eqceoxi8voqg bx9i9wkpgiydkkezsisiug7usbmoc3 jeglikerwhitegirls
-
 # TO DO (TEST SPLIT) 2
 # ADD PRESETS
 # ADD CUSTOMS
@@ -94,6 +85,8 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                       ' channel title is currently ' + r['status'])
 
         # Provide basic information to viewers for specific commands
+
+        # OLD WAY TO DO HEX CODE
         # Hex input as command
         # elif cmd[0] == '#':
         #     if len(cmd) == 7:
@@ -122,9 +115,8 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                 bulb = WifiLedBulb(bulb_info['ipaddr'])
                 bulb.turnOff()
 
-        # The command was not recognized
+        # Go Through Process of Changing Color or Fail the command
         else:
-            # Go Through Process of Changing Color or Fail the command
             bulb_info = autoScan()
             if bulb_info:
                 bulb = WifiLedBulb(bulb_info['ipaddr'])
@@ -155,7 +147,7 @@ def generateRGB(cmd): # given string, convert it to based on type of input: hex,
         rgb = webcolors.name_to_rgb(cmd)
     return rgb
 
-def main():
+def main(): # basic main function, get's twitch info and creates the bot
     if len(sys.argv) != 5:
         print("Usage: twitchbot <username> <client id> <token> <channel>")
         sys.exit(1)
