@@ -58,7 +58,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
         # If a chat message starts with an exclamation point, try to run it as a command
         if e.arguments[0][:1] == '!':
-            cmd = e.arguments[0].split(' ')[0][1:]
+            cmd = e.arguments[0].split(' ')[0][1:] # can modify this to get the entire comment, then parse it down. maybe just pass the left overs into do_command and only use them when needed
             print 'Received command: ' + cmd
             self.do_command(e, cmd)
         return
@@ -115,7 +115,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                 bulb = WifiLedBulb(bulb_info['ipaddr'])
                 bulb.turnOff()
 
-        # Go Through Process of Changing Color or Fail the command
+        # Will Be Direct Color Command or Fail
         else:
             bulb_info = autoScan()
             if bulb_info:
