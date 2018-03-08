@@ -77,29 +77,16 @@ class TwitchBot(irc.bot.SingleServerIRCBot): # heavily inspired by twitch exampl
             print "initial karate training failed"
         ### END WAX
 
-        continue_to_parse = 1
-        i = 0
-        input_list = test_str.split('!')[1:]
-        print input_list
-        i_max = len(input_list)
-        while (i < i_max):
+        i = 0 # iterator
+        input_list = test_str.split('!')[1:] # break down into command blocks
+        print input_list # just logging
+        i_max = len(input_list) # constraint: end after last block command executes
+        while (i < i_max): # run through blocks
             cmd = input_list[i].split(' ')[0][0:] # ex: {fun no more} --> {fun}
             argi = input_list[i].replace(cmd + " ", "", 1) # ex: {fun no more} --> {no more}
-
-            # just in case lmao
-            try:
-                print "CMD:" + cmd 
-                print "ARGI:" + argi
-            except IOError:
-                print "initial further training failed" 
-                continue_to_parse = 0
-            # end just in case
-
             self.do_command(e, cmd, argi) # execute the command
             i = i + 1 # move to next command block
             
-            
-
         return
 
     def do_command(self, e, cmd, test_str):
