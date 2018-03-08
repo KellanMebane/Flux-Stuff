@@ -1,4 +1,5 @@
-# TO DO (TEST SPLIT) 2
+# TO DO
+# MULTI COMMANDS WORK. ARGUMENTS PASSED, BUT NOT SETUP.
 # ADD PRESETS
 # ADD CUSTOMS
 # ADD BRIGHTNESS
@@ -24,7 +25,7 @@ sys.path.append(this_folder)
 from flux_led import WifiLedBulb, BulbScanner, LedTimer
 
 
-class TwitchBot(irc.bot.SingleServerIRCBot):
+class TwitchBot(irc.bot.SingleServerIRCBot): # heavily inspired by twitch example https://github.com/twitchdev/chat-samples/blob/master/python/chatbot.py
     def __init__(self, username, client_id, token, channel):
         self.client_id = client_id
         self.token = token
@@ -56,14 +57,52 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
     def on_pubmsg(self, c, e):
 
-        # If a chat message starts with an exclamation point, try to run it as a command
-        if e.arguments[0][:1] == '!':
-            cmd = e.arguments[0].split(' ')[0][1:] # can modify this to get the entire comment, then parse it down. maybe just pass the left overs into do_command and only use them when needed
-            print 'Received command: ' + cmd
-            self.do_command(e, cmd)
+        # Previous, single command mode.
+        #if e.arguments[0][:1] == '!':
+        #    cmd = e.arguments[0].split(' ')[0][1:] # can modify this to get the entire comment, then parse it down. maybe just pass the left overs into do_command and only use them when needed
+        #    test_str = e.arguments[0] # gets the full line after the command
+        #    print 'Test Line: ' + test_str
+        #    print 'Received command: ' + cmd
+        #    self.do_command(e, cmd, test_str)
+
+        ### WAX OFF EVERYTHING BEFORE FIRST COMMAND (SIMPLIFIES LOOP)
+        test_str = e.arguments[0][0:]
+        print "TEST STRING: " + test_str
+        temp = test_str.split('!', 1)[0][0:] 
+        test_str = test_str.replace(temp, "", 1)
+        try:
+            print "TEMP: " + temp
+            print "REPLACE:" + test_str
+        except IOError:
+            print "initial karate training failed"
+        ### END WAX
+
+        continue_to_parse = 1
+        i = 0
+        input_list = test_str.split('!')[1:]
+        print input_list
+        i_max = len(input_list)
+        while (i < i_max):
+            cmd = input_list[i].split(' ')[0][0:] # ex: {fun no more} --> {fun}
+            argi = input_list[i].replace(cmd + " ", "", 1) # ex: {fun no more} --> {no more}
+
+            # just in case lmao
+            try:
+                print "CMD:" + cmd 
+                print "ARGI:" + argi
+            except IOError:
+                print "initial further training failed" 
+                continue_to_parse = 0
+            # end just in case
+
+            self.do_command(e, cmd, argi) # execute the command
+            i = i + 1 # move to next command block
+            
+            
+
         return
 
-    def do_command(self, e, cmd):
+    def do_command(self, e, cmd, test_str):
         c = self.connection
 
         # Poll the API to get current game.
@@ -114,21 +153,29 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             if bulb_info:
                 bulb = WifiLedBulb(bulb_info['ipaddr'])
                 bulb.turnOff()
+                c.privmsg(self.channel, message)
 
-        # Will Be Direct Color Command or Fail
-        else:
+        elif cmd == "warm": # Warm white big-command
             bulb_info = autoScan()
             if bulb_info:
                 bulb = WifiLedBulb(bulb_info['ipaddr'])
                 bulb.turnOn()
-                try:
-                    rgb = generateRGB(cmd)
+                
+
+        # Will Be Direct Color Command or Fail
+        else:
+            try:
+                rgb = generateRGB(cmd) # try to turn it into RGB
+                bulb_info = autoScan() # at this point it worked
+                if bulb_info: # change the bulb colors
+                    bulb = WifiLedBulb(bulb_info['ipaddr'])
+                    bulb.turnOn()
                     bulb.setRgb(rgb[0], rgb[1], rgb[2], persist=False)
                     message = "Bulb color changed to " + cmd
                     c.privmsg(self.channel, message)
-                except ValueError: # If value doesn't exist, it's neither a color or a command
-                    c.privmsg(self.channel, cmd + " is not a color!")
-                    c.privmsg(self.channel, "Did not understand command: " + cmd)
+            except ValueError: # If value doesn't exist, it's neither a color or a command
+                c.privmsg(self.channel, cmd + " is not a color!")
+                c.privmsg(self.channel, "Did not understand command: " + cmd)
 
 def autoScan():
 	scanner = BulbScanner()
